@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<meta charset="utf-8">
+
+<th:block layout:fragment="css">
+</th:block>
+
+
+<div layout:fragment="content">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.0.min.js" ></script>
+
+    <script type="text/javascript">
+        function weekNumberByMonth(dateFormat) {
+          const inputDate = new Date(dateFormat);
+
+          // 인풋의 년, 월
+          let year = inputDate.getFullYear();
+          let month = inputDate.getMonth() + 1;
+
+          // 목요일 기준 주차 구하기
+          const weekNumberByThurFnc = (paramDate) => {
+
+            const year = paramDate.getFullYear();
+            const month = paramDate.getMonth();
+            const date = paramDate.getDate();
+
+            // 인풋한 달의 첫 날과 마지막 날의 요일
+            const firstDate = new Date(year, month, 1);
+            const lastDate = new Date(year, month+1, 0);
+            const firstDayOfWeek = firstDate.getDay() === 0 ? 7 : firstDate.getDay();
+            const lastDayOfweek = lastDate.getDay();
+
+            // 인풋한 달의 마지막 일
+            const lastDay = lastDate.getDate();
+
+            // 첫 날의 요일이 금, 토, 일요일 이라면 true
+            const firstWeekCheck = firstDayOfWeek === 5 || firstDayOfWeek === 6 || firstDayOfWeek === 7;
+            // 마지막 날의 요일이 월, 화, 수라면 true
+            const lastWeekCheck = lastDayOfweek === 1 || lastDayOfweek === 2 || lastDayOfweek === 3;
+
+            // 해당 달이 총 몇주까지 있는지
+            const lastWeekNo = Math.ceil((firstDayOfWeek - 1 + lastDay) / 7);
+
+            // 날짜 기준으로 몇주차 인지
+            let weekNo = Math.ceil((firstDayOfWeek - 1 + date) / 7);
+
+            // 인풋한 날짜가 첫 주에 있고 첫 날이 월, 화, 수로 시작한다면 'prev'(전달 마지막 주)
+            if(weekNo === 1 && firstWeekCheck) weekNo = 'prev';
+            // 인풋한 날짜가 마지막 주에 있고 마지막 날이 월, 화, 수로 끝난다면 'next'(다음달 첫 주)
+            else if(weekNo === lastWeekNo && lastWeekCheck) weekNo = 'next';
+            // 인풋한 날짜의 첫 주는 아니지만 첫날이 월, 화 수로 시작하면 -1;
+            else if(firstWeekCheck) weekNo = weekNo -1;
+
+            return weekNo;
+          };
+
+          // 목요일 기준의 주차
+          let weekNo = weekNumberByThurFnc(inputDate);
+
+          // 이전달의 마지막 주차일 떄
+          if(weekNo === 'prev') {
+            // 이전 달의 마지막날
+            const afterDate = new Date(year, month-1, 0);
+            year = month === 1 ? year - 1 : year;
+            month = month === 1 ? 12 : month - 1;
+            weekNo = weekNumberByThurFnc(afterDate);
+          }
+          // 다음달의 첫 주차일 때
+          if(weekNo === 'next') {
+            year = month === 12 ? year + 1 : year;
+            month = month === 12 ? 1 : month + 1;
+            weekNo = 1;
+          }
+
+          return {weekNo};
+        }
+
+        Date.prototype.getWeek = function (dowOffset) {
+
+          dowOffset = typeof(dowOffset) == 'number' ? dowOffset : 0; // dowOffset이 숫자면 넣고 아니면 0
+          var newYear = new Date(this.getFullYear(),0,1);
+          var day = newYear.getDay() - dowOffset; //the day of week the year begins on
+          day = (day >= 0 ? day : day + 7);
+          var daynum = Math.floor((this.getTime() - newYear.getTime() -
+            (this.getTimezoneOffset()-newYear.getTimezoneOffset())*60000)/86400000) + 1;
+          var weeknum;
+          //if the year starts before the middle of a week
+          if(day < 4) {
+            weeknum = Math.floor((daynum+day-1)/7) + 1;
+            if(weeknum > 52) {
+              let nYear = new Date(this.getFullYear() + 1,0,1);
+              let nday = nYear.getDay() - dowOffset;
+              nday = nday >= 0 ? nday : nday + 7;
+              /*if the next year starts before the middle of
+                the week, it is week #1 of that year*/
+              weeknum = nday < 4 ? 1 : 53;
+            }
+          }
+          else {
+            weeknum = Math.floor((daynum+day-1)/7);
+          }
+          return weeknum;
+        };
+
+        function getFormatDate(date){
+            var year = date.getFullYear();              //yyyy
+            var month = (1 + date.getMonth());          //M
+            month = month >= 10 ? month : '0' + month;  //month 두자리로 저장
+            var day = date.getDate();                   //d
+            day = day >= 10 ? day : '0' + day;          //day 두자리로 저장
+            return  year + '' + month + '' + day;       //'-' 추가하여 yyyy-mm-dd 형태 생성 가능
+        }
+
+        function getMondayDate(d) {
+            var paramDate = new Date(d); // new Date('2021-06-08'): 화요일
+
+            var day = paramDate.getDay();
+            var diff = paramDate.getDate() - day + (day == 0 ? -6 : 1);
+            return new Date(paramDate.setDate(diff)).toISOString().substring(0, 10);
+
+            // return : 2021-05-06 (월요일)
+        }
+
+
+
+        function Search(){
+                console.log("시작");
+                var startdate = document.getElementById('date1');
+                var enddate = document.getElementById('date2');
+
+                console.log(startdate.value);
+                console.log(enddate.value);
+
+
+
+                dateFrom = new Date(startdate.value);
+                var fromYear = dateFrom.getFullYear();
+                var fromMonth = dateFrom.getMonth() + 1;
+                var fromDay = dateFrom.getDate();
+
+                if (isNaN(fromYear) || isNaN(fromMonth) || isNaN(fromDay)){
+                fromYear = 0;
+                fromMonth = 0;
+                fromDay = 0;
+                }
+
+                dateTo = new Date(enddate.value);
+                var toYear = dateTo.getFullYear();
+                var toMonth = dateTo.getMonth() + 1;
+                var toDay = dateTo.getDate();
+
+                //날짜 지정을 하지 않았을 때 NaN이 발생하여 0으로 처리
+                if (isNaN(toYear) || isNaN(toMonth) || isNaN(toDay)){
+                toYear = 0;
+                toMonth = 0;
+                toDay = 0;
+                }
+
+                var Startnum = dateFrom.getWeek(1);
+                var Endnum = dateTo.getWeek(1);
+
+                if(toYear == 0 || fromYear == 0){
+                    alert("시작 또는 종료 날짜를 선택해주세요");
+                }
+
+                else if(Startnum != Endnum){
+                    alert("해당 주간을 벗어났습니다.");
+                }
+                //날짜 조회 시, 시작일이 오늘 날짜보다는 크고,
+                //종료일이 시작일보다는 커야하기 때문에 조건을 걸어줌
+                else if(dateTo >= dateFrom){
+                    form1.submit();
+                }
+
+                else if(dateTo < dateFrom){
+                    alert("종료일이 시작일을 벗어났습니다");
+                }
+
+
+
+        }
+        $(document).ready(function () {
+            $('#autoSelect').click(function(){
+                var checked = $('#autoSelect').is(':checked');
+
+                if(checked){
+                    console.log("이야");
+                    var startdate = document.getElementById('date1');
+                    var hihi = getMondayDate(startdate.value);
+                    console.log(hihi);
+
+                    document.getElementById('date1').value = hihi;
+
+                    dateMon = new Date(startdate.value);
+
+                    dateMon.setDate(dateMon.getDate()+6);
+                    console.log(dateMon.toISOString().substring(0, 10));
+                    var hehe = dateMon.toISOString().substring(0, 10);
+                    document.getElementById('date2').value = hehe;
+                    document.getElementById('date2').readOnly = true;
+                    document.getElementById('date2').style.backgroundColor = 'gray';
+
+
+                }else{
+
+                    document.getElementById('date2').value = "연도-월-일";
+                    document.getElementById('date2').style.backgroundColor = 'white';
+
+                }
+
+            });
+        });
+
+
+        function autoselect(){
+            console.log("이야");
+            var startdate = document.getElementById('date1');
+            var hihi = getMondayDate(startdate.value);
+            console.log(hihi);
+
+            document.getElementById('date1').value = hihi;
+
+            dateMon = new Date(startdate.value);
+
+            dateMon.setDate(dateMon.getDate()+6);
+            console.log(dateMon.toISOString().substring(0, 10));
+
+            document.getElementById('date2').value = dateMon.toISOString().substring(0, 10);
+            document.getElementById('date2').disabled = true;
+
+        }
+
+
+
+    </script>
+
+
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-xl-6">
+                <form name="form1" th:action="@{/MenuPrint/}" method="get">
+                    <!-- Email address input-->
+<!--                    <h1>주간 식단 조회</h1>-->
+                    <h1 th:text="#{text}"></h1>
+                    <hr>
+
+                    <div class="div-custom3" style="background-color: #d2d2d2;">
+                        <table id="search">
+                            <th>식당명</th>
+                            <th>식사구분</th>
+                            <th>조회년월</th>
+                            <tr>
+                                <td>
+                                    <select name="restNm" id="restNm" th:name="rest">
+                                        <th:block th:each="rest : ${RestList}">
+                                            <option th:text="${rest}"></option>
+                                        </th:block>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <select name="restDivision" id="restDivision" th:name="Meal">
+                                        <th:block th:each="Meal : ${MealList}">
+                                            <option th:text="${Meal}"></option>
+                                        </th:block>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <input type="date" value="연도-월-일" th:name="date1" id="date1">
+                                </td>
+                                <td>
+                                    <input type="date" value="연도-월-일" th:name="date2" id="date2">
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="autoSelect" >주간 자동 선택
+                                </td>
+<!--                                onclick="autoselect()"-->
+                            </tr>
+                            <tr>
+                                <td>
+<!--                                    <button type="submit" onclick()="datasearch()">조회</button>-->
+                                        <button type="button" name="btnSearch" id="btnSearch" onclick="Search()">조회</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+</html>

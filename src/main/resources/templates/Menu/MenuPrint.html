@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="css">
+
+</th:block>
+<div layout:fragment="content">
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var convalue = confirm("인쇄하시겠습니까?");
+
+            if(convalue == true){
+                window.print();
+            }
+        });
+
+
+    </script>
+
+    <div>
+        <section class="py-5">
+            <th:blcok th:each="PageList : ${Final.getPageList()}">
+
+                <div style="height:350px;">
+                </div>
+
+                <h2 class="h2-center">식단 구성표</h2>
+                <p class="p-center"><span th:text="${Now}"></span><span> 현재</span></p>
+
+                <div>
+                    <table class="table table-bordered" style="margin-left: auto; margin-right: auto;">
+                        <thead>
+                        <tr>
+                            <th colspan="8"><p>식당명: <span th:text="${Place}"></span> / 급식기간: <span
+                                    th:text="${StartDate}"></span> ~ <span th:text="${EndDate}"></span></p>
+                                <span>총 <span th:text="${TotalDate}"></span> 일</span>
+                            </th>
+                        </tr>
+                        <th:blcok th:if="${PageList.getWeeks().isEmpty()} == false">
+                            <tr>
+                            <th class="th-center">구분</th>
+
+                                <th:block th:each=" DayNames : ${PageList.getWeeks().get(0).getWeek()}">
+                                    <th th:if="${DayNames.DayName} == ' '" th:text="${DayNames.DayName}"
+                                        style="background-color:#FAFAAA;"></th>
+                                    <th th:unless="${DayNames.DayName} == ' '" th:text="${DayNames.DayName}"></th>
+                                </th:block>
+                            </tr>
+                        </th:blcok>
+
+                        <th:blcok th:unless="${PageList.getWeeks().isEmpty()} == false">
+                            <tr>
+
+                            <th class="th-center">구분</th>
+                                <th style="background-color: gray;">月</th>
+                                <th style="background-color: gray;">火</th>
+                                <th style="background-color: gray;">水</th>
+                                <th style="background-color: gray;">木</th>
+                                <th style="background-color: gray;">金</th>
+                                <th style="background-color: gray;">土</th>
+                                <th style="background-color: gray;">日</th>
+                            </tr>
+                            <tr>
+                               <td></td><td colspan="7" style="font-size:20px;">NoData</td>
+                            </tr>
+                        </th:blcok>
+
+
+                        </thead>
+                        <tbody>
+                        <tr class="tr-hoo" th:each="week : ${PageList.getWeeks()}">
+                            <td class="tddd" style="font-size:5px;" th:text="${week.mealName}">
+                            </td>
+                            <th:block th:each="sell : ${week.getWeek()}">
+                                <td width=110 style="padding:0px;">
+                                    <th:blcok th:each="date : ${sell.getSell()}">
+                                        <ul style="list-style:none; padding-left:0px; margin:0px;">
+                                            <li th:if="${date.IngreNm}==${date.FoodNm}"
+                                                style="background-color:#917DE6; font-size:5px; text-align:center list-style:none; padding-left:0px;"
+                                                th:text="${date.foodNm}"></li>
+                                            <li th:unless="${date.IngreNm}==${date.FoodNm}"
+                                                style="text-align: left; font-size:5px; "
+                                                th:text="${date.IngreNm}"></li>
+                                        </ul>
+                                    </th:blcok>
+                                </td>
+
+                            </th:block>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <span><span th:text="${PageList.PageNum}"></span> / <span th:text="${TotalPage}"></span></span></span>
+                    <div style="height:350px;">
+                    </div>
+                </div>
+
+            </th:blcok>
+        </section>
+    </div>
+</div>
+
+</html>

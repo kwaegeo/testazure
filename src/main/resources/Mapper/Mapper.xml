@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.NoChu.mapper.MenuMapper">
+    <select id="Result" resultType="QueryDto">
+        select cms_menu.ymd, cms_common_code.code_nm, cms_menu.meal_id, cms_food.food_nm, cms_ingredients.ingredients_nm
+        from cms_menu
+        inner
+        join cms_recipe
+        on cms_recipe.food_id = cms_menu.food_id
+        inner
+        join cms_food
+        on cms_menu.food_id = cms_food.food_id
+        inner
+        join cms_ingredients
+        on cms_recipe.ingredients_id = cms_ingredients.ingredients_id
+        inner
+        join cms_common_code
+        on cms_common_code.code_id = cms_menu.restaurant_id
+        inner
+        join cms_common_code
+        on cms_common_code.code_id = cms_menu.meal_id
+        where
+        ymd
+        between to_date('22-01-05', 'yy-mm-dd')
+        and to_date('22-01-11','yy-mm-dd')
+        and cms_common_code.code_nm = '여민관'
+        order by cms_menu.ymd, cms_common_code.code_nm, cms_menu.meal_id
+    </select>
+</mapper>
+

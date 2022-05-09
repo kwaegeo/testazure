@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="css">
+
+</th:block>
+<div layout:fragment="content">
+
+    <script type="text/javascript">
+
+            let index = {
+                init: function(){
+                    $("#btn-click").on("click", ()=>{
+                        this.save();
+                    });
+                },
+                save: function(){
+
+                $.ajax({
+                    type: "GET",
+                    url:"/test3",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }).done(function(resp){
+                    alert("테스트중입니다.");
+                    location.href="/test";
+                }).fail(function(error){
+                    alert(JSON.stringify(error));
+                });
+
+        }
+        index.init();
+    </script>
+
+    <div>
+        <section class="py-5">
+            <button id="btn-click" class="btn btn-primary">ajaxtest</button>
+        </section>
+    </div>
+</div>
+
+</html>
