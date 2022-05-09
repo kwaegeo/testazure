@@ -3,7 +3,6 @@ package com.NoChu.MenuService;
 import com.NoChu.dto.CommonCodeDto;
 import com.NoChu.dto.QueryDto;
 import com.NoChu.mapper.MenuMapper;
-import groovy.util.logging.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Slf4j
+
 @Service
 public class MenuServiceImpl implements MenuService {
 
